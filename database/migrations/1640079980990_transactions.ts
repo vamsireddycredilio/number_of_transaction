@@ -8,7 +8,7 @@ export default class Transactions extends BaseSchema {
       table.increments('id')
       table.string('customerName', 80).notNullable()
       table.float('amount').notNullable()
-      table.string('description', 500).notNullable()
+      table.string('description', 500).nullable()
       table.string('type', 5).notNullable()
       table.timestamps(true)
       table

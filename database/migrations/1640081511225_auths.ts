@@ -8,7 +8,7 @@ export default class Auths extends BaseSchema {
       table.increments()
       table.string('username', 80).notNullable()
       table.string('email', 254).notNullable().unique()
-      table.string('password', 60).notNullable()
+      table.string('password', 20).notNullable()
       table.timestamps()
     })
   }

@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Transaction from 'App/Models/Transaction';
 import Database from '@ioc:Adonis/Lucid/Database';
+import TransactionValidator from 'App/Validators/TransactionValidator';
 
 export default class TransactionsController {
     public async index () {
@@ -25,29 +26,41 @@ export default class TransactionsController {
                 .limit(data.limit)
     }
     public async store ({ request, response }: HttpContextContract) {
-        const data = request.only(['customerName', 'amount', 'description', 'type', 'uid']);
-        const post = {
-            customerName: data.customerName,
-            amount: data.amount,
-            description: data.description,
-            type: data.type,
-            user_id: data.uid
-        };
-        await Transaction.create(post);
-        return response.json({"message": "Record created successfully! "});
+        try {
+            await request.validate(TransactionValidator);
+            const data = request.only(['customerName', 'amount', 'description', 'type', 'uid']);
+
+            const post = {
+                customerName: data.customerName,
+                amount: data.amount,
+                description: data.description,
+                type: data.type,
+                user_id: data.uid
+            };
+            await Transaction.create(post);
+            return response.json({"message": "Record created successfully! "});
+        } catch (err) {
+            return response.json({"Err": err});
+        }
     }
     public async update ({ params, request, response }: HttpContextContract) {
+
+        try {
+            await request.validate(TransactionValidator);
+            const data = request.only(['customerName', 'amount', 'description', 'type']);
         
-        const data = request.only(['customerName', 'amount', 'description', 'type']);
-    
-        let trans = await Transaction.find(params.id) as Transaction;
-    
-        trans.customerName = data.customerName;
-        trans.amount = data.amount;
-        trans.description = data.description;
-        trans.type = data.type;
-        await trans.save()
-        return response.json(trans)
+            let trans = await Transaction.find(params.id) as Transaction;
+        
+            trans.customerName = data.customerName;
+            trans.amount = data.amount;
+            trans.description = data.description;
+            trans.type = data.type;
+            await trans.save()
+            return response.json(trans);
+        } catch (err) {
+            return response.json({"Err": err});
+        }
+        
       }
     public async destroy ({ params, response  }: HttpContextContract) {
         const tran = await Transaction.find(params.id)
